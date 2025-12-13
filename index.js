@@ -4,8 +4,32 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 require('dotenv').config();
 
-// Cargar configuración desde config.yml
-const config = yaml.load(fs.readFileSync('./config.yml', 'utf8'));
+// Cargar configuración desde config.yml o variables de entorno
+let config;
+try {
+  // Intentar cargar desde el archivo YAML primero
+  config = yaml.load(fs.readFileSync('./config.yml', 'utf8'));
+  
+  // Si estamos en producción (Railway), priorizar variables de entorno
+  if (process.env.NODE_ENV === 'production') {
+    config.bot.token = process.env.DISCORD_TOKEN || config.bot.token;
+    config.branding.color = process.env.BRANDING_COLOR || config.branding.color;
+    config.branding.logo = process.env.BRANDING_LOGO || config.branding.logo;
+    config.channels.welcome = process.env.WELCOME_CHANNEL_ID || config.channels.welcome;
+    config.channels.goodbye = process.env.GOODBYE_CHANNEL_ID || config.channels.goodbye;
+    config.channels.logs = process.env.LOGS_CHANNEL_ID || config.channels.logs;
+    config.roles.autorole = process.env.AUTOROLE_ID || config.roles.autorole;
+  }
+} catch (error) {
+  console.error('Error al cargar configuración:', error);
+  process.exit(1);
+}
+
+// Verificar que el token esté configurado
+if (!config.bot.token || config.bot.token === "PON_AQUI_EL_TOKEN") {
+  console.error('❌ ERROR: Token de Discord no configurado. Por favor, configura la variable DISCORD_TOKEN en Railway o edita config.yml');
+  process.exit(1);
+}
 
 // Crear instancia del cliente de Discord
 const client = new Client({
@@ -354,5 +378,26 @@ async function sendLogEmbed(action, description, moderator) {
   }
 }
 
+// Manejo de errores de conexión
+client.on('error', error => {
+  console.error('Error en el cliente de Discord:', error);
+});
+
+client.on('shardError', error => {
+  console.error('Error en el shard:', error);
+});
+
+process.on('unhandledRejection', error => {
+  console.error('Promesa rechazada no manejada:', error);
+});
+
+process.on('uncaughtException', error => {
+  console.error('Excepción no capturada:', error);
+  process.exit(1);
+});
+
 // Iniciar el bot con el token de configuración
-client.login(config.bot.token);
+client.login(config.bot.token).catch(error => {
+  console.error('Error al iniciar sesión:', error.message);
+  process.exit(1);
+});
