@@ -26,7 +26,7 @@ try {
 }
 
 // Verificar que el token esté configurado
-if (!config.bot.token || config.bot.token === "PON_AQUI_EL_TOKEN") {
+if (!config.bot.token || config.bot.token === "MTQ0OTIzODY5MjQwNDM5NjIzMw.GLRBKJ.JUEwHWnLNPNa28RZqBgx55V-Irzfi60wGQQxko") {
   console.error('❌ ERROR: Token de Discord no configurado. Por favor, configura la variable DISCORD_TOKEN en Railway o edita config.yml');
   process.exit(1);
 }
