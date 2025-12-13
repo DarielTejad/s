@@ -1,0 +1,55 @@
+# Configuración del Bot NeonCore
+bot:
+  token: "PON_AQUI_EL_TOKEN"
+  prefix: "!"
+  status: "NeonCore Hosting 🚀"
+
+# Branding y apariencia
+branding:
+  name: "NeonCore"
+  color: "#00f6ff"
+  logo: "https://cdn.discordapp.com/attachments/1449175817694216205/1449175995658797236/log.png"
+
+# Canales del servidor
+channels:
+  welcome: "ID_CANAL_BIENVENIDA"
+  goodbye: "ID_CANAL_DESPEDIDA"
+  logs: "ID_CANAL_LOGS"
+
+# Roles del servidor
+roles:
+  autorole: "ID_ROL_POR_DEFECTO"
+
+# Mensajes personalizados
+messages:
+  welcome_title: "¡Bienvenido a NeonCore!"
+  welcome_description: "Gracias por unirte a nuestra comunidad. ¡Disfruta de tu estancia!"
+  goodbye_title: "¡Hasta pronto!"
+  goodbye_description: "Esperamos verte pronto de nuevo en NeonCore."
+
+# Planes de hosting (ficticios)
+hosting_plans:
+  - name: "Básico"
+    price: "$5.99/mes"
+    ram: "2GB"
+    cpu: "1 vCPU"
+    storage: "20GB SSD"
+    description: "Perfecto para pequeños proyectos"
+  - name: "Estándar"
+    price: "$12.99/mes"
+    ram: "4GB"
+    cpu: "2 vCPU"
+    storage: "50GB SSD"
+    description: "Ideal para servidores de juego"
+  - name: "Profesional"
+    price: "$24.99/mes"
+    ram: "8GB"
+    cpu: "4 vCPU"
+    storage: "100GB SSD"
+    description: "Para proyectos de alto rendimiento"
+  - name: "Enterprise"
+    price: "$49.99/mes"
+    ram: "16GB"
+    cpu: "8 vCPU"
+    storage: "200GB SSD"
+    description: "Solución empresarial completa"
