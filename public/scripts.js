@@ -7,11 +7,12 @@
 const CONFIG = {
     API_URL: 'http://104.243.47.215:25565',
     REDIRECT_LOGIN: '/privacy/index.html',
+    DEFAULT_AVATAR: '/uploads/imgs/avatars/default.png',
     LS_TOKEN: 'nova_access_token',
     LS_USER: 'nova_user',
     ENDPOINTS: {
-        posts: '/api/posts',
-        stories: '/api/stories',
+        posts: '/api/posts/feed',
+        stories: '/api/stories/feed',
         conversations: '/api/conversations',
         userStats: '/api/user/stats',
     },
@@ -32,6 +33,19 @@ const AppState = {
     isLoading: true,
     apiError: false,
 };
+
+// ============ UTILITY: Avatar Handler ============
+/**
+ * Obtiene la URL del avatar, usando el default si no existe
+ * @param {string} avatarUrl - URL del avatar del usuario
+ * @returns {string} URL válida del avatar
+ */
+function getAvatarUrl(avatarUrl) {
+    if (!avatarUrl || avatarUrl.trim() === '') {
+        return CONFIG.DEFAULT_AVATAR;
+    }
+    return avatarUrl;
+}
 
 // ============ INITIALIZATION ============
 document.addEventListener('DOMContentLoaded', () => {
@@ -113,9 +127,19 @@ function injectUserData() {
     if (userDisplayName) userDisplayName.textContent = display_name || 'Usuario';
     if (userUsername) userUsername.textContent = `@${username || 'usuario'}`;
 
-    if (avatar_url) {
-        if (userAvatarFooter) userAvatarFooter.src = avatar_url;
-        if (userAvatarCreate) userAvatarCreate.src = avatar_url;
+    // Use avatar helper for default fallback
+    const avatarUrl = getAvatarUrl(avatar_url);
+    if (userAvatarFooter) {
+        userAvatarFooter.src = avatarUrl;
+        userAvatarFooter.onerror = () => {
+            userAvatarFooter.src = CONFIG.DEFAULT_AVATAR;
+        };
+    }
+    if (userAvatarCreate) {
+        userAvatarCreate.src = avatarUrl;
+        userAvatarCreate.onerror = () => {
+            userAvatarCreate.src = CONFIG.DEFAULT_AVATAR;
+        };
     }
 }
 
@@ -165,7 +189,14 @@ async function fetchWithAuth(endpoint) {
 async function fetchPosts() {
     try {
         const data = await fetchWithAuth(CONFIG.ENDPOINTS.posts);
-        AppState.posts = Array.isArray(data) ? data : data.posts || [];
+        // Manejar diferentes estructuras de respuesta
+        if (data.success && data.data) {
+            AppState.posts = Array.isArray(data.data.posts) ? data.data.posts : [];
+        } else if (Array.isArray(data)) {
+            AppState.posts = data;
+        } else {
+            AppState.posts = Array.isArray(data.posts) ? data.posts : [];
+        }
     } catch (error) {
         console.warn('Failed to fetch posts, will use mock data');
         AppState.apiError = true;
@@ -175,7 +206,13 @@ async function fetchPosts() {
 async function fetchStories() {
     try {
         const data = await fetchWithAuth(CONFIG.ENDPOINTS.stories);
-        AppState.stories = Array.isArray(data) ? data : data.stories || [];
+        if (data.success && data.data) {
+            AppState.stories = Array.isArray(data.data.stories) ? data.data.stories : [];
+        } else if (Array.isArray(data)) {
+            AppState.stories = data;
+        } else {
+            AppState.stories = Array.isArray(data.stories) ? data.stories : [];
+        }
     } catch (error) {
         console.warn('Failed to fetch stories, will use mock data');
         AppState.apiError = true;
@@ -185,7 +222,13 @@ async function fetchStories() {
 async function fetchConversations() {
     try {
         const data = await fetchWithAuth(CONFIG.ENDPOINTS.conversations);
-        AppState.conversations = Array.isArray(data) ? data : data.conversations || [];
+        if (data.success && data.data) {
+            AppState.conversations = Array.isArray(data.data.conversations) ? data.data.conversations : [];
+        } else if (Array.isArray(data)) {
+            AppState.conversations = data;
+        } else {
+            AppState.conversations = Array.isArray(data.conversations) ? data.conversations : [];
+        }
     } catch (error) {
         console.warn('Failed to fetch conversations, will use mock data');
         AppState.apiError = true;
@@ -195,10 +238,17 @@ async function fetchConversations() {
 async function fetchUserStats() {
     try {
         const data = await fetchWithAuth(CONFIG.ENDPOINTS.userStats);
+        let statsData = data;
+        
+        // Si la respuesta tiene estructura success
+        if (data.success && data.data) {
+            statsData = data.data;
+        }
+
         AppState.stats = {
-            postsCount: data.posts_count || 0,
-            followersCount: data.followers_count || 0,
-            followingCount: data.following_count || 0,
+            postsCount: statsData.posts_count || statsData.post_count || 0,
+            followersCount: statsData.followers_count || 0,
+            followingCount: statsData.following_count || 0,
         };
     } catch (error) {
         console.warn('Failed to fetch user stats, will use default values');
@@ -215,7 +265,7 @@ function loadMockData() {
                 id: 101,
                 username: 'alexa_dev',
                 display_name: 'Alexa Rodriguez',
-                avatar_url: 'https://i.pravatar.cc/150?img=1',
+                avatar_url: null,
             },
             caption: '🚀 Just launched my new project! Feeling excited about this one. The feedback from the beta testers has been amazing so far.',
             created_at: new Date(Date.now() - 2 * 60 * 60 * 1000),
@@ -237,7 +287,7 @@ function loadMockData() {
                 id: 102,
                 username: 'john_design',
                 display_name: 'John Designer',
-                avatar_url: 'https://i.pravatar.cc/150?img=2',
+                avatar_url: null,
             },
             caption: 'Working on a new UI design system. Simplicity and elegance are key. What do you think?',
             created_at: new Date(Date.now() - 4 * 60 * 60 * 1000),
@@ -259,7 +309,7 @@ function loadMockData() {
                 id: 103,
                 username: 'sarah_tech',
                 display_name: 'Sarah Chen',
-                avatar_url: 'https://i.pravatar.cc/150?img=3',
+                avatar_url: null,
             },
             caption: 'Just attended the most inspiring tech conference! Met so many amazing people and learned a ton.',
             created_at: new Date(Date.now() - 6 * 60 * 60 * 1000),
@@ -283,7 +333,7 @@ function loadMockData() {
             author: {
                 username: 'alexa_dev',
                 display_name: 'Alexa',
-                avatar_url: 'https://i.pravatar.cc/150?img=1',
+                avatar_url: null,
             },
             is_active: true,
         },
@@ -292,7 +342,7 @@ function loadMockData() {
             author: {
                 username: 'john_design',
                 display_name: 'John',
-                avatar_url: 'https://i.pravatar.cc/150?img=2',
+                avatar_url: null,
             },
             is_active: true,
         },
@@ -301,7 +351,7 @@ function loadMockData() {
             author: {
                 username: 'sarah_tech',
                 display_name: 'Sarah',
-                avatar_url: 'https://i.pravatar.cc/150?img=3',
+                avatar_url: null,
             },
             is_active: false,
         },
@@ -310,7 +360,7 @@ function loadMockData() {
             author: {
                 username: 'michael_dev',
                 display_name: 'Michael',
-                avatar_url: 'https://i.pravatar.cc/150?img=4',
+                avatar_url: null,
             },
             is_active: true,
         },
@@ -319,7 +369,7 @@ function loadMockData() {
             author: {
                 username: 'emma_design',
                 display_name: 'Emma',
-                avatar_url: 'https://i.pravatar.cc/150?img=5',
+                avatar_url: null,
             },
             is_active: false,
         },
@@ -331,7 +381,7 @@ function loadMockData() {
             user: {
                 username: 'alexa_dev',
                 display_name: 'Alexa Rodriguez',
-                avatar_url: 'https://i.pravatar.cc/150?img=1',
+                avatar_url: null,
             },
             last_message: 'Hey! How are you?',
             is_online: true,
@@ -341,7 +391,7 @@ function loadMockData() {
             user: {
                 username: 'john_design',
                 display_name: 'John Designer',
-                avatar_url: 'https://i.pravatar.cc/150?img=2',
+                avatar_url: null,
             },
             last_message: 'Check out the new designs...',
             is_online: false,
@@ -351,7 +401,7 @@ function loadMockData() {
             user: {
                 username: 'sarah_tech',
                 display_name: 'Sarah Chen',
-                avatar_url: 'https://i.pravatar.cc/150?img=3',
+                avatar_url: null,
             },
             last_message: 'Thanks for the feedback!',
             is_online: true,
@@ -382,10 +432,15 @@ function renderStories() {
     container.innerHTML = stories
         .map((story) => {
             const author = story.author || {};
+            const avatarUrl = getAvatarUrl(author.avatar_url);
             return `
             <div class="story-avatar" style="position: relative;">
                 ${story.is_active ? '<div class="story-avatar-ring"></div>' : ''}
-                <img src="${author.avatar_url || 'https://via.placeholder.com/64'}" alt="${author.display_name}">
+                <img 
+                    src="${avatarUrl}" 
+                    alt="${author.display_name}"
+                    onerror="this.src='${CONFIG.DEFAULT_AVATAR}'"
+                >
             </div>
             <div class="story-name">${author.display_name || 'Usuario'}</div>
         `;
@@ -418,6 +473,7 @@ function renderFeed() {
 function createPostElement(post) {
     const author = post.author || {};
     const timeAgo = getTimeAgo(post.created_at);
+    const avatarUrl = getAvatarUrl(author.avatar_url);
     const mediaHtml = post.media && post.media.length > 0
         ? `<div class="post-media">
              <img src="${post.media[0].url}" alt="Post media">
@@ -428,7 +484,11 @@ function createPostElement(post) {
         <div class="post-card" data-post-id="${post.id}">
             <div class="post-header">
                 <div class="user-avatar small">
-                    <img src="${author.avatar_url || 'https://via.placeholder.com/48'}" alt="${author.display_name}">
+                    <img 
+                        src="${avatarUrl}" 
+                        alt="${author.display_name}"
+                        onerror="this.src='${CONFIG.DEFAULT_AVATAR}'"
+                    >
                 </div>
                 <div class="post-author-info">
                     <div class="post-author-name">${author.display_name || 'Usuario'}</div>
@@ -481,11 +541,16 @@ function renderConversations() {
     container.innerHTML = conversations
         .map((conv) => {
             const user = conv.user || {};
+            const avatarUrl = getAvatarUrl(user.avatar_url);
             return `
             <div class="message-item">
                 <div class="message-avatar-container">
                     <div class="message-avatar">
-                        <img src="${user.avatar_url || 'https://via.placeholder.com/40'}" alt="${user.display_name}">
+                        <img 
+                            src="${avatarUrl}" 
+                            alt="${user.display_name}"
+                            onerror="this.src='${CONFIG.DEFAULT_AVATAR}'"
+                        >
                     </div>
                     ${conv.is_online ? '<div class="message-status"></div>' : ''}
                 </div>
@@ -631,13 +696,22 @@ async function handlePublishPost() {
             confirmBtn.textContent = 'Publicando...';
         }
 
-        // Aquí iría la llamada a la API para crear el post
-        const postData = {
-            caption: textarea.value.trim(),
-        };
+        // Llamar a la API para crear el post
+        const response = await fetch(`${CONFIG.API_URL}${CONFIG.ENDPOINTS.posts}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${AppState.token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                caption: textarea.value.trim(),
+                post_type: 'text',
+            }),
+        });
 
-        // Simulación de éxito
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (!response.ok) {
+            throw new Error('Error creating post');
+        }
 
         closeCreatePostModal();
         alert('¡Publicación creada exitosamente!');
@@ -677,8 +751,18 @@ function handleLikePost(btn) {
         likeCount.textContent = isLiked ? currentCount - 1 : currentCount + 1;
     }
 
-    // Aquí iría la llamada a la API para actualizar el like
-    console.log(`Like toggled for post ${postId}`);
+    // Llamada a la API para actualizar el like
+    const endpoint = isLiked 
+        ? `${CONFIG.API_URL}${CONFIG.ENDPOINTS.posts}/${postId}/like`
+        : `${CONFIG.API_URL}${CONFIG.ENDPOINTS.posts}/${postId}/like`;
+    
+    fetch(endpoint, {
+        method: isLiked ? 'DELETE' : 'POST',
+        headers: {
+            'Authorization': `Bearer ${AppState.token}`,
+            'Content-Type': 'application/json',
+        },
+    }).catch(err => console.error('Error toggling like:', err));
 }
 
 function handleSavePost(btn) {
@@ -696,8 +780,18 @@ function handleSavePost(btn) {
         btn.querySelector('.save-text').textContent = 'Guardado';
     }
 
-    // Aquí iría la llamada a la API para guardar/desguardar el post
-    console.log(`Save toggled for post ${postId}`);
+    // Llamada a la API para guardar/desguardar el post
+    const endpoint = isSaved 
+        ? `${CONFIG.API_URL}${CONFIG.ENDPOINTS.posts}/${postId}/save`
+        : `${CONFIG.API_URL}${CONFIG.ENDPOINTS.posts}/${postId}/save`;
+    
+    fetch(endpoint, {
+        method: isSaved ? 'DELETE' : 'POST',
+        headers: {
+            'Authorization': `Bearer ${AppState.token}`,
+            'Content-Type': 'application/json',
+        },
+    }).catch(err => console.error('Error toggling save:', err));
 }
 
 // ============ LOGOUT HANDLER ============
