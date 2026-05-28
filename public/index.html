@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Nova - Dashboard Premium Application">
+    <title>Nova Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Background Grid & Ambient Glow -->
+    <div class="bg-grid"></div>
+    <div class="ambient-glow"></div>
+
+    <div class="app-container">
+        <!-- LEFT SIDEBAR: Navigation -->
+        <aside class="sidebar sidebar-left">
+            <div class="sidebar-content">
+                <!-- Logo -->
+                <div class="logo-section">
+                    <div class="logo">
+                        <svg class="logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Triángulo izquierdo oscuro (azul a negro) -->
+                            <defs>
+                                <linearGradient id="gradLeftTriangle" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#1e1b4b;stop-opacity:1" />
+                                </linearGradient>
+                                <linearGradient id="gradRightParallel" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#d946ef;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            
+                            <!-- Triángulo izquierdo oscuro -->
+                            <polygon points="20,35 20,70 55,70" fill="url(#gradLeftTriangle)" opacity="0.9"/>
+                            
+                            <!-- Triángulo derecho con borde blanco -->
+                            <polygon points="45,30 75,30 80,70 45,70" fill="url(#gradRightParallel)" opacity="0.95"/>
+                            
+                            <!-- Línea blanca diagonal (brillo) -->
+                            <line x1="25" y1="32" x2="55" y2="62" stroke="white" stroke-width="6" opacity="0.85" stroke-linecap="round"/>
+                        </svg>
+                        <span class="logo-text">Nova</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Menu -->
+                <nav class="nav-menu">
+                    <a href="#" class="nav-item active" data-page="feed">
+                        <span class="nav-icon feed-icon">
+                            <i class="fas fa-newspaper"></i>
+                        </span>
+                        <span class="nav-label">Feed</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="messages">
+                        <span class="nav-icon messages-icon">
+                            <i class="fas fa-message"></i>
+                        </span>
+                        <span class="nav-label">Mensajes</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="stories">
+                        <span class="nav-icon stories-icon">
+                            <i class="fas fa-film"></i>
+                        </span>
+                        <span class="nav-label">Historias</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="calls">
+                        <span class="nav-icon calls-icon">
+                            <i class="fas fa-phone"></i>
+                        </span>
+                        <span class="nav-label">Llamadas</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="saved">
+                        <span class="nav-icon saved-icon">
+                            <i class="fas fa-bookmark"></i>
+                        </span>
+                        <span class="nav-label">Guardados</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="settings">
+                        <span class="nav-icon settings-icon">
+                            <i class="fas fa-cog"></i>
+                        </span>
+                        <span class="nav-label">Configuración</span>
+                    </a>
+                </nav>
+
+                <!-- User Profile Footer -->
+                <div class="user-profile-footer">
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <img id="userAvatarFooter" src="https://via.placeholder.com/48" alt="User Avatar">
+                        </div>
+                        <div class="user-details">
+                            <div class="user-name" id="userDisplayName">Loading...</div>
+                            <div class="user-username" id="userUsername">@loading</div>
+                        </div>
+                    </div>
+                    <button class="logout-btn" id="logoutBtn" title="Cerrar sesión">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- Stories Section -->
+            <section class="stories-section">
+                <div class="stories-wrapper">
+                    <div class="stories-container" id="storiesContainer">
+                        <!-- Stories will be injected here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Create Post Box -->
+            <section class="create-post-section">
+                <div class="glass-panel create-post-panel">
+                    <div class="create-post-header">
+                        <div class="user-avatar small">
+                            <img id="userAvatarCreate" src="https://via.placeholder.com/40" alt="User Avatar">
+                        </div>
+                        <input 
+                            type="text" 
+                            class="create-post-input" 
+                            id="createPostInput"
+                            placeholder="¿Qué está en tu mente?"
+                            readonly
+                        >
+                    </div>
+                    <div class="create-post-actions">
+                        <button class="action-btn small" title="Adjuntar foto o video">
+                            <span class="action-icon media-icon">
+                                <i class="fas fa-image"></i>
+                            </span>
+                            <span class="action-label">Foto/Video</span>
+                        </button>
+                        <button class="action-btn small" title="Insertar emoji">
+                            <span class="action-icon emoji-icon">
+                                <i class="fas fa-smile"></i>
+                            </span>
+                            <span class="action-label">Emoji</span>
+                        </button>
+                        <button class="primary-btn" id="publishBtn">
+                            <i class="fas fa-paper-plane"></i>
+                            Publicar
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Feed Posts Section -->
+            <section class="feed-section">
+                <div class="feed-container" id="feedContainer">
+                    <!-- Skeleton Loaders -->
+                    <div class="post-skeleton">
+                        <div class="skeleton-avatar"></div>
+                        <div class="skeleton-content">
+                            <div class="skeleton-header"></div>
+                            <div class="skeleton-text"></div>
+                            <div class="skeleton-text short"></div>
+                        </div>
+                    </div>
+                    <div class="post-skeleton">
+                        <div class="skeleton-avatar"></div>
+                        <div class="skeleton-content">
+                            <div class="skeleton-header"></div>
+                            <div class="skeleton-text"></div>
+                            <div class="skeleton-text short"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- API Error Message -->
+            <div class="api-error-message" id="apiErrorMessage" style="display: none;">
+                <span class="error-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </span>
+                <span>Los datos se cargan desde datos de demostración</span>
+            </div>
+        </main>
+
+        <!-- RIGHT SIDEBAR: Stats & Messages -->
+        <aside class="sidebar sidebar-right">
+            <div class="sidebar-content">
+                <!-- User Stats -->
+                <div class="stats-section">
+                    <h3 class="stats-title">
+                        <i class="fas fa-chart-line"></i>
+                        Tu Actividad
+                    </h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="stat-label">Posts</div>
+                            <div class="stat-value" id="postsCount">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-label">Seguidores</div>
+                            <div class="stat-value" id="followersCount">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="stat-label">Seguidos</div>
+                            <div class="stat-value" id="followingCount">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Messages -->
+                <div class="messages-section">
+                    <h3 class="messages-title">
+                        <i class="fas fa-inbox"></i>
+                        Mensajes Recientes
+                    </h3>
+                    <div class="recent-messages" id="recentMessages">
+                        <!-- Messages will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Modal para crear post -->
+    <div class="modal" id="createPostModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-section">
+                    <i class="fas fa-pen-fancy"></i>
+                    <h2>Crear Publicación</h2>
+                </div>
+                <button class="close-btn" id="closeModalBtn" title="Cerrar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <textarea 
+                    id="postTextarea" 
+                    class="post-textarea" 
+                    placeholder="¿Qué está en tu mente? Cuéntale a tus seguidores..."
+                    maxlength="500"
+                ></textarea>
+                <div class="char-count">
+                    <span id="charCount">0</span>/500
+                </div>
+                <div class="modal-actions-help">
+                    <button class="modal-action-btn" type="button" title="Agregar foto">
+                        <i class="fas fa-image"></i>
+                    </button>
+                    <button class="modal-action-btn" type="button" title="Agregar emoji">
+                        <i class="fas fa-smile"></i>
+                    </button>
+                    <button class="modal-action-btn" type="button" title="Agregar ubicación">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="secondary-btn" id="cancelPostBtn">
+                    <i class="fas fa-ban"></i>
+                    Cancelar
+                </button>
+                <button class="primary-btn" id="confirmPostBtn">
+                    <i class="fas fa-check"></i>
+                    Publicar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay para modal -->
+    <div class="modal-overlay" id="modalOverlay" style="display: none;"></div>
+
+    <!-- Toast Notification (para feedback) -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
